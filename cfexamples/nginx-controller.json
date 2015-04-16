@@ -11,7 +11,7 @@
           "version": "v1beta1",
           "id": "nginx-controller",
           "containers": [{
-            "image": "dqminh/nginx-guestbook:v2",
+            "image": "dqminh/nginx-guestbook:v3",
             "name": "nginx-guestbook",
             "cmd": ["nginx"],
             "ports": [{ "containerPort": 8080 }]
