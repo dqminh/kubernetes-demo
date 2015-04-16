@@ -28,6 +28,7 @@ Vagrant.require_version ">= 1.6.0"
 
 MASTER_YAML = File.join(File.dirname(__FILE__), "master.yaml")
 NODE_YAML = File.join(File.dirname(__FILE__), "node.yaml")
+BALANCER_YAML = File.join(File.dirname(__FILE__), "balancer.yaml")
 
 DOCKERCFG = File.expand_path(ENV['DOCKERCFG'] || "~/.dockercfg")
 
@@ -67,18 +68,24 @@ NUM_INSTANCES = ENV['NUM_INSTANCES'] || 2
 MASTER_MEM = ENV['MASTER_MEM'] || 512
 MASTER_CPUS = ENV['MASTER_CPUS'] || 1
 
+BALANCER_MEM = ENV['BALANCER_MEM'] || 512
+BALANCER_CPUS = ENV['BALANCER_CPUS'] || 1
+
 NODE_MEM= ENV['NODE_MEM'] || 1024
 NODE_CPUS = ENV['NODE_CPUS'] || 1
 
 SERIAL_LOGGING = (ENV['SERIAL_LOGGING'].to_s.downcase == 'true')
 GUI = (ENV['GUI'].to_s.downcase == 'true')
 
-(1..(NUM_INSTANCES.to_i + 1)).each do |i|
+# we add one more load balancer to the mix to get consistent IPs
+(1..(NUM_INSTANCES.to_i + 2)).each do |i|
   case i
   when 1
     hostname = "master"
+  when 2
+    hostname = "balancer-01"
   else
-    hostname = ",node-%02d" % (i - 1)
+    hostname = ",node-%02d" % (i - 2)
   end
 end
 
@@ -126,14 +133,20 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vbguest.auto_update = false
   end
 
-  (1..(NUM_INSTANCES.to_i + 1)).each do |i|
+  # we add one more load balancer to the mix to get consistent external IP
+  (1..(NUM_INSTANCES.to_i + 2)).each do |i|
     if i == 1
       hostname = "master"
       cfg = MASTER_YAML
       memory = MASTER_MEM
       cpus = MASTER_CPUS
+    elsif i == 2
+      hostname = "balancer-%02d" % (i - 1)
+      cfg = BALANCER_YAML
+      memory = BALANCER_MEM
+      cpus = BALANCER_CPUS
     else
-      hostname = "node-%02d" % (i - 1)
+      hostname = "node-%02d" % (i - 2)
       cfg = NODE_YAML
       memory = NODE_MEM
       cpus = NODE_CPUS
