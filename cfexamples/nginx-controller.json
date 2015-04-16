@@ -1,0 +1,25 @@
+{
+  "apiVersion": "v1beta1",
+  "kind": "ReplicationController",
+  "id": "nginx-controller",
+  "desiredState": {
+    "replicas": 3,
+    "replicaSelector": { "name": "nginx" },
+    "podTemplate": {
+      "desiredState": {
+        "manifest": {
+          "version": "v1beta1",
+          "id": "nginx-controller",
+          "containers": [{
+            "image": "dqminh/nginx-guestbook:v2",
+            "name": "nginx-guestbook",
+            "cmd": ["nginx"],
+            "ports": [{ "containerPort": 8080 }]
+          }]
+        }
+      },
+      "labels": { "name": "nginx" }
+    }
+  },
+  "labels": { "name": "nginx" }
+}
