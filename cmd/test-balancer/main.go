@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	endpoint = "http://172.17.8.102/"
+	endpoint = "http://172.17.8.102/env"
 	interval = 10 * time.Millisecond
 	duration = 5 * time.Second
 	workers  = 5
