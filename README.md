@@ -30,6 +30,39 @@ This setups:
 - 3 go pods
 - 3 nginx pods that has the balancer public IP
 
+I've written some tests as part of the evaluation process in addition to
+architecture analysis.
+
+- some tests in `cluster_test.go` to make sure that the cluster works
+when you stop 1/multiple pods
+
+- `cmd/test-balancer` to verify that it round-robins traffic to different
+containers properly.
+
+- Some load tests on performance of the proxy at multiple layers.
+
+```
+# access the balancer from the host ( host -> vbox -> proxy -> nginx -> proxy -> go
+# echo "GET http://172.17.8.102/env" | vegeta attack -duration=10s
+Duration  [total, attack, wait]    9.98487159s, 9.979999948s, 4.871642ms
+Latencies [mean, 50, 95, 99, max]  7.351891ms, 7.175346ms, 13.60921ms, 28.812801ms, 28.812801ms
+
+# access service from the balancer ( proxy -> nginx -> proxy -> go )
+# echo "GET http://10.100.163.223/env" | vegeta attack -duration=10s
+Duration  [total, attack, wait]    9.98175826s, 9.979033984s, 2.724276ms
+Latencies [mean, 50, 95, 99, max]  4.647811ms, 4.338643ms, 10.491438ms, 18.892568ms, 18.892568ms
+
+# access nginx container ( nginx -> proxy -> go )
+# echo "GET http://10.244.99.5:8080/env" | vegeta attack -duration=10s
+Duration  [total, attack, wait]    9.985572165s, 9.981208245s, 4.36392ms
+Latencies [mean, 50, 95, 99, max]  3.809716ms, 3.566446ms, 9.470779ms, 29.575838ms, 29.575838ms
+
+# access go app directly on 1 container ( go )
+# echo "GET http://10.244.99.3:3000/env" | vegeta attack -duration=10s
+Duration  [total, attack, wait]    9.981228268s, 9.979355936s, 1.872332ms
+Latencies [mean, 50, 95, 99, max]  1.019448ms, 714.256µs, 3.159894ms, 14.446097ms, 14.446097ms
+```
+
 # kubernetes-vagrant-coreos-cluster
 Turnkey **[Kubernetes](https://github.com/GoogleCloudPlatform/kubernetes)**
 cluster setup with **[Vagrant](https://www.vagrantup.com)** (1.7.2+) and
