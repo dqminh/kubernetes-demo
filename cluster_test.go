@@ -195,9 +195,13 @@ func podsAt(label string, index int) (string, error) {
 }
 
 func printMetrics(t *testing.T, metrics *vegeta.Metrics) {
+	t.Logf("p50 %v", metrics.Latencies.P50)
+	t.Logf("p95  %v", metrics.Latencies.P95)
 	t.Logf("p99 %v", metrics.Latencies.P99)
 	t.Logf("mean %v", metrics.Latencies.Mean)
+	t.Logf("wait %s", metrics.Wait)
 	t.Logf("success %.2f", metrics.Success*100)
+	t.Logf("requests %d", metrics.Requests)
 	if metrics.Success < 1 {
 		t.Logf("errors %v", metrics.Errors)
 	}
