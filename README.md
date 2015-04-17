@@ -1,3 +1,35 @@
+# Kubernetes tests
+
+This is based on kubernetes-vagrant-coreos-cluster
+```
+vagrant up
+./setup install
+# setup proper env variables in your shell
+```
+
+This will setup:
+- 1 master node
+- 2 minion nodes that pods can be scheduled on
+- 1 balancer node that can be used to access external service. This is so that
+  we have consistent public IPs that's different from the minions' public IPs.
+  This mirrors what we are probably going to have when deploy k8s to prod.
+
+To deploy the pods:
+
+```
+kubectl create -f cfexamples/redis-controller.json
+kubectl create -f cfexamples/redis-service.json
+kubectl create -f cfexamples/guestbook-controller.json
+kubectl create -f cfexamples/guestbook-service.json
+kubectl create -f cfexamples/nginx-controller.json
+kubectl create -f cfexamples/nginx-service.json
+```
+
+This setups:
+- 1 redis pod
+- 3 go pods
+- 3 nginx pods that has the balancer public IP
+
 # kubernetes-vagrant-coreos-cluster
 Turnkey **[Kubernetes](https://github.com/GoogleCloudPlatform/kubernetes)**
 cluster setup with **[Vagrant](https://www.vagrantup.com)** (1.7.2+) and
